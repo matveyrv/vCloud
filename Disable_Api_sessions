@@ -1,0 +1,4 @@
+##To block the provider access to the /api/sessions API endpoint, use the cell management tool and run the following command:
+/opt/vmware/vcloud-director/bin/cell-management-tool manage-config -n vcloud.api.legacy.nonprovideronly -v true
+##To enable the provider access to the /api/sessions API endpoint, run the following command:
+/opt/vmware/vcloud-director/bin/cell-management-tool manage-config -n vcloud.api.legacy.nonprovideronly -v false
