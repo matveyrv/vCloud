@@ -1,1 +1,3 @@
 https://kb.vmware.com/s/article/1026355
+sed -i 's/Xms1024M/Xms6144M/g' /opt/vmware/vcloud-director/bin/vmware-vcd-cell-common
+sed -i 's/Xmx4096M/Xmx10240M/g' /opt/vmware/vcloud-director/bin/vmware-vcd-cell-common
