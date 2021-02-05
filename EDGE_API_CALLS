@@ -1,0 +1,87 @@
+Выгрузка через API:
+1.	Получаем токен для доступа в vCloud (тип Basic, УЗ в формате admin@org_name) – интересует x-vmware-vcloud-access-token
+curl --location --request POST 'https://vcd6.vdcportal.ru/api/sessions' \
+--header 'Accept: application/*+xml;version=31.0' \
+--header 'Authorization: Basic XXXXXXXXXXXXXXXXXXXXXXXXXXX=='
+2.    Формируем запрос к Edge GW источнику данных (тип bearer token, значение получено ранее).
+curl --location --request GET 'https://vcd6.vdcportal.ru/network/edges/30eb79bf-056e-4d4d-8813-5cee4c5bdaf0' \
+--header 'Accept: application/*+xml;version=31.0' \
+--header 'Authorization: Bearer XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX '
+3.    Получаем конфиг edge GW, в котором нас интересуют разделы <firewallRules> и <natRules>
+4.    Копируем данные разделы и удаляем из правил секции: для NAT - <ruleId></ruleId>, <ruleTag></ruleTag>, для FW - <Id></Id>, <ruleTag></ruleTag>
+5.    Получаем доступ к vCloud-приемнику аналогично пункту 1
+6.    Импортируем данные: 
+       NAT
+curl --location --request POST 'https://vcd6.vdcportal.ru/network/edges/30eb79bf-056e-4d4d-8813-5cee4c5bdaf0/nat/config/rules' \
+--header 'Accept: application/*+xml;version=31.0' \
+--header 'Authorization: Bearer XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXx' \
+--header 'Content-Type: application/xml' \
+--data-raw '<natRules>
+                <natRule>
+                    <loggingEnabled>false</loggingEnabled>
+                    <enabled>true</enabled>
+                    <translatedAddress>195.19.96.70</translatedAddress>
+                    <ruleType>user</ruleType>
+                    <action>snat</action>
+                    <vnic>0</vnic>
+                    <originalAddress>192.168.66.10</originalAddress>
+                    <snatMatchDestinationAddress>any</snatMatchDestinationAddress>
+                    <protocol>any</protocol>
+                    <originalPort>any</originalPort>
+                    <translatedPort>any</translatedPort>
+                    <snatMatchDestinationPort>any</snatMatchDestinationPort>
+                </natRule>
+                <natRule>
+                    <loggingEnabled>false</loggingEnabled>
+                    <enabled>true</enabled>
+                    <translatedAddress>192.168.66.10</translatedAddress>
+                    <ruleType>user</ruleType>
+                    <action>dnat</action>
+                    <vnic>0</vnic>
+                    <originalAddress>195.19.96.70</originalAddress>
+                    <dnatMatchSourceAddress>any</dnatMatchSourceAddress>
+                    <protocol>tcp</protocol>
+                    <originalPort>22</originalPort>
+                    <translatedPort>22</translatedPort>
+                    <dnatMatchSourcePort>any</dnatMatchSourcePort>
+                </natRule>
+            </natRules>'
+       FW
+              curl --location --request POST 'https://vcd6.vdcportal.ru/network/edges/30eb79bf-056e-4d4d-8813-5cee4c5bdaf0/firewall/config/rules' \
+--header 'Accept: application/*+xml;version=31.0' \
+--header 'Authorization: Bearer XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX' \
+--header 'Content-Type: application/xml' \
+--data-raw '    <firewallRules>
+        <firewallRule>
+            <name></name>
+            <ruleType>user</ruleType>
+            <enabled>true</enabled>
+            <loggingEnabled>false</loggingEnabled>
+            <description></description>
+            <action>accept</action>
+            <source>
+                <exclude>false</exclude>
+                <ipAddress>any</ipAddress>
+            </source>
+            <destination>
+                <exclude>false</exclude>
+                <ipAddress>195.19.96.70</ipAddress>
+            </destination>
+            <application>
+                <service>
+                    <protocol>tcp</protocol>
+                    <port>22</port>
+                    <sourcePort>any</sourcePort>
+                </service>
+                <service>
+                    <protocol>tcp</protocol>
+                    <port>23</port>
+                    <sourcePort>any</sourcePort>
+                </service><service>
+                    <protocol>tcp</protocol>
+                    <port>24</port>
+                    <sourcePort>any</sourcePort>
+                </service>
+            </application>
+        </firewallRule>
+     </firewallRules>'
