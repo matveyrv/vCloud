@@ -1,0 +1,1 @@
+/opt/vmware/vcloud-director/bin/cell-management-tool cell-application -i $(service vmware-vcd pid cell) --application-states
