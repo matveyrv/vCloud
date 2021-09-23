@@ -1,0 +1,17 @@
+##смотрим состояние кластера
+sudo -i -u postgres /opt/vmware/vpostgres/10/bin/repmgr -f /opt/vmware/vpostgres/10/etc/repmgr.conf cluster show
+## Проверяем коннект между нодами
+sudo -i -u postgres /opt/vmware/vpostgres/10/bin/repmgr -f /opt/vmware/vpostgres/10/etc/repmgr.conf cluster crosscheck
+## Запускаем клонирование с ключем --dry-run (Check prerequisites but don't actually execute a switchover.)
+sudo -i -u postgres /opt/vmware/vpostgres/10/bin/repmgr -f /opt/vmware/vpostgres/10/etc/repmgr.conf -h 192.168.0.1 -U repmgr -d repmgr standby clone --dry-run --force
+##Стопаем службу постгресса на поврежденной ячейке
+service vpostgres stop
+##удаляем текущий эксземпляр базы и клонируем основную базу с адреса (192.168.0.1)
+sudo -i -u postgres /opt/vmware/vpostgres/10/bin/repmgr -f /opt/vmware/vpostgres/10/etc/repmgr.conf -h 192.168.0.1 -U repmgr -d repmgr standby clone --force
+## Должны в выводе получить NOTICE: standby clone (using pg_basebackup) complete
+##регистрируем экземпляр бд как standby с ключем --dry-run (Check prerequisites but don't actually execute a switchover.)
+sudo -i -u postgres /opt/vmware/vpostgres/10/bin/repmgr -f /opt/vmware/vpostgres/10/etc/repmgr.conf -h 192.168.0.1 -U repmgr -d repmgr standby register --dry-run --force
+## Должны в выводе получить INFO: all prerequisites for "standby register" are met
+##регистрируем экземпляр бд как standby
+sudo -i -u postgres /opt/vmware/vpostgres/10/bin/repmgr -f /opt/vmware/vpostgres/10/etc/repmgr.conf -h 192.168.0.1 -U repmgr -d repmgr standby register  --force
+## Запускаем службу vpostgres
