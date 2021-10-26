@@ -1,0 +1,11 @@
+При появлении 504 ошибок в интерфейсе VCD или ошибок связанных с таймаутами операций можно провести анализ долгих запросов к БД Postgre.
+
+Включить логирование долгих запросов
+Подключиться к master-ноде БД
+Отредактировать файл /pgdata01/postgresql.conf - раскомментировать строку #log_min_duration_statement = -1, установить значение, например 2000 (2 секунды)
+Перечитать конфиг СУБД - systemctl reload postgresql-10.service (безопасная операция)
+Наблюдать лог
+tail -f /pgdata01/log/postgresql-2021-10-25.log
+Должно появиться что-то типа:
+2021-10-24 01:28:36.144 MSK [2848245] LOG:  duration: 46908.265 ms  execute <unnamed>: / criteria query / select this_.portgroup_type as y0, this_.syslog_server_ip2 as y1, this_.syslog_server_ip1 as y2, this_.dns2 as y3, this_.dns1 as y4, this_.description as y5, this_.fabric_object_id as y6, this_.ip_scope_id as y7, this_.busy_state as y8, this_.rnet_id as y9, this_.rnet_name as y10, this_.service_config as y11, this_.scope_type as y12, this_.netmask as y13, this_.name as y14, this_.vapp_name as y15, this_.condition_count as y16, this_.job_status as y17, this_.portgroup_name as y18, this_.vc_id as y19, this_.is_linked as y20, this_.sg_id as y21, this_.is_busy as y22, this_.job_status_name as y23, this_.subnet_prefix_length as y24, this_.id as y25, this_.name as y26, this_.job_user_details as y27, this_.retain_nic_resources as y28, this_.link_lnet_id as y29, this_.link_lnet_name as y30, this_.org_id as y31, this_.link_lnet_name as y32, this_.user_id as y33, this_.portgroup_moref as y34, this_.dns_suffix as y35, this_.name as y36, this_.link_type as y37, this_.is_inherited as y38, this_.gateway as y39, this_.job_id as y40 from ui_vapp_network_view this where (this_.sg_id=$1) and this_.org_id=$2 order by lower(this_.name) asc, this_.id asc limit $3
+2021-10-24 01:28:36.144 MSK [2848245] DETAIL:  parameters: $1 = '0747e384-8497-48c8-847c-0a33c864ae79', $2 = 'b6e17f8f-8e68-4597-8fa9-7ee5bc62516f', $3 = '15'
