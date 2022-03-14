@@ -1,0 +1,13 @@
+на случай такого поведения 
+вот комманды в клауде которые надо сделать :
+https://kb.vmware.com/s/article/85552
+SELECT datastore_id,moref FROM (SELECT datastore_id,moref,ROW_NUMBER() OVER(PARTITION BY vc_id, moref) FROM datastore) AS sp WHERE row_number > 1;
+SELECT ms_id,display_name,moref FROM (SELECT ms_id,display_name,moref,ROW_NUMBER() OVER(PARTITION BY vc_id, moref) FROM managed_server) AS host WHERE row_number > 1;
+
+в нашем случае задвоился хост 
+                ms_id                 |     display_name      |   moref
+--------------------------------------+-----------------------+-----------
+ a1f5c3d6-2246-45ed-a444-e674d3b17ff9 | i114s033esx.sys.local | host-2096
+ 
+
+delete from managed_server where ms_id = 'тут должен быть дубликат задвоенной сущности';
