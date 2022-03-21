@@ -1,0 +1,12 @@
+su - postgres
+psql
+\c vcloud
+
+Для того чтобы включить логирование запросов в файл логов я выполнил следующую команду:
+ALTER SYSTEM set log_statement = 'all';
+
+После чего открыл лог файл с текущей датой создания в папке /var/vmware/vpostgres/current/pgdata/log/ 
+
+Не забываем отключать логирование запросов, чтобы наши логи не раздувались:
+
+ALTER SYSTEM set log_statement = 'none';
